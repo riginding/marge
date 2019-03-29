@@ -1,0 +1,9 @@
+[package]
+name = "marge"
+description = "marge create MRs/PRs and automatically assigns one of your merge buddies"
+version = "0.1.0"
+authors = ["Ryan Riginding <ryan@riginding.com>"]
+edition = "2018"
+
+[dependencies]
+structopt = "0.2.15"
