@@ -6,20 +6,14 @@ extern crate serde_json;
 extern crate reqwest;
 extern crate rand;
 
-
-use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT, CONTENT_TYPE};
+use reqwest::header::{HeaderMap, HeaderValue};
 use structopt::StructOpt;
 use std::process::Command;
-use std::collections::HashMap;
 use rand::seq::SliceRandom;
 
 
 
 const HELP_TEMPLATE: &str = r#"
-        ,
-        (                          )use structopt::StructOpt;
-use std::process::Command;
-
          \                        /
         ,' ,__,___,__,-._         )
         )-' ,    ,  , , (        /
@@ -43,8 +37,7 @@ use std::process::Command;
 USAGE:
     {usage}
 
-subcommands:
-{subcommands}
+{all-args}
 "#;
 
 const HELP_WITHOUT_SUB_TEMPLATE: &str = r#"
@@ -80,34 +73,30 @@ USAGE:
     about="marge, your friendly merge assistant",
     raw(template="HELP_TEMPLATE")
 )]
-enum Opt {
+enum Marge {
     #[structopt(
         name="setup",
         about="Initialize your configuration",
         raw(template="HELP_WITHOUT_SUB_TEMPLATE")
     )]
-    Setup {
-      setup: bool,
-    },
+    Setup { },
     #[structopt(name = "buddy",
                 about="Configure your merge buddies",
                 raw(template="HELP_TEMPLATE")
     )]
     Buddy {
         /// add a merge buddy
-        #[structopt(name = "add")]
+        #[structopt(short = "a")]
         add: bool,
         /// list your merge buddies
-        #[structopt(name = "list")]
+        #[structopt(short = "l")]
         list: bool,
     },
     #[structopt(name = "merge",
                 about="Creates a merge request",
                 raw(template="HELP_WITHOUT_SUB_TEMPLATE")
     )]
-    Merge {
-        merge: bool,
-    }
+    Merge { }
 }
 
 fn construct_headers() -> HeaderMap {
@@ -116,29 +105,12 @@ fn construct_headers() -> HeaderMap {
     headers
 }
 
-fn main() -> Result<(), reqwest::Error> {
-    // let output = Command::new("sh")
-    //     .arg("-c")
-    //     .arg("git symbolic-ref --short HEAD")
-    //     .output()
-    //     .expect("failed to execute process");
-
-    // let hello = output.stdout;
-    // println!("You are in this branch now: {:?}", std::str::from_utf8(&hello).unwrap().trim());
-    // let matches = Opt::from_args();
-
-    // println!("{:?}", matches);
-
-    // Adam, Manfred, Anzor
-    let commitor_ids = [81, 69, 60];
-    let chosen = commitor_ids.choose(&mut rand::thread_rng());
-    println!("{:?}", chosen);
-
+fn create_merge_request() -> Result<(), reqwest::Error> {
     let params = json!({
-        "id": "506",
-        "source_branch": "marge_test",
+        "id": "506", // dreamfactory hardcoded
+        "source_branch": active_branch(),
         "target_branch": "sandbox",
-        "assignee_id": chosen.unwrap(),
+        "assignee_id": chose_assignee(),
         "title": "This is a test",
         "description": "a description for this very useful mr",
         "remove_source_branch": true,
@@ -150,11 +122,40 @@ fn main() -> Result<(), reqwest::Error> {
     let res = client.post("https://git.sclable.com/api/v4/projects/506/merge_requests")
         .headers(construct_headers())
         .json(&params)
-        .send();
+        .send()?;
 
-    println!("{:?}", res);
+    println!("{:?}", params);
 
     Ok(())
+}
+
+fn main() {
+    match Marge::from_args() {
+        Marge::Merge{} => {
+            create_merge_request();
+        },
+        _ => {
+            println!("something else");
+        }
+    }
+
+}
+
+fn chose_assignee() -> i32 {
+    // Adam, Manfred, Anzor
+    let commitor_ids = [81, 69, 60];
+    *commitor_ids.choose(&mut rand::thread_rng()).unwrap()
+}
+
+fn active_branch() -> String {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg("git symbolic-ref --short HEAD")
+        .output()
+        .expect("failed to execute process");
+
+    let hello = output.stdout;
+    std::str::from_utf8(&hello).unwrap().trim().to_string()
 }
 
 // how to find out which branch we are in:
