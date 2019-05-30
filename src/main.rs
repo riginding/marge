@@ -1,16 +1,13 @@
 #[macro_use]
-extern crate structopt;
-#[macro_use]
 extern crate serde_json;
 
 extern crate reqwest;
 extern crate rand;
+extern crate git2;
 
 use reqwest::header::{HeaderMap, HeaderValue};
 use structopt::StructOpt;
-use std::process::Command;
 use rand::seq::SliceRandom;
-
 
 
 const HELP_TEMPLATE: &str = r#"
@@ -40,33 +37,6 @@ USAGE:
 {all-args}
 "#;
 
-const HELP_WITHOUT_SUB_TEMPLATE: &str = r#"
-        ,
-        (                          )
-         \                        /
-        ,' ,__,___,__,-._         )
-        )-' ,    ,  , , (        /
-        ;'"-^-.,-''"""\' \       )
-       (      (        ) /  __  /
-        \o,----.  o  _,'( ,.^. \
-        ,'`.__  `---'    `\ \ \ \_
- ,.,. ,'                   \    ' )
- \ \ \\__  ,------------.  /     /
-( \ \ \( `---.-`-^--,-,--\:     :
- \       (   (""""""`----'|     :
-  \   `.  \   `.          |      \
-   \   ;  ;     )      __ _\      \
-   /     /    ,-.,-.'"Y  Y  \      `.
-  /     :    ,`-'`-'`-'`-'`-'\       `.
- /      ;  ,'  /              \        `
-/      / ,'   /                \
-
-{about}
-
-USAGE:
-    {usage}
-"#;
-
 /// DOC COMMENT
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -77,7 +47,7 @@ enum Marge {
     #[structopt(
         name="setup",
         about="Initialize your configuration",
-        raw(template="HELP_WITHOUT_SUB_TEMPLATE")
+        raw(template="HELP_TEMPLATE")
     )]
     Setup { },
     #[structopt(name = "buddy",
@@ -94,14 +64,16 @@ enum Marge {
     },
     #[structopt(name = "merge",
                 about="Creates a merge request",
-                raw(template="HELP_WITHOUT_SUB_TEMPLATE")
+                raw(template="HELP_TEMPLATE")
     )]
+
     Merge { }
 }
 
 fn construct_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
     headers.insert("Private-Token", HeaderValue::from_static("wJ7Xg4gWAB4zenVMvysc"));
+
     headers
 }
 
@@ -119,7 +91,7 @@ fn create_merge_request() -> Result<(), reqwest::Error> {
 
 
     let client = reqwest::Client::new();
-    let res = client.post("https://git.sclable.com/api/v4/projects/506/merge_requests")
+    client.post("https://git.sclable.com/api/v4/projects/506/merge_requests")
         .headers(construct_headers())
         .json(&params)
         .send()?;
@@ -129,16 +101,17 @@ fn create_merge_request() -> Result<(), reqwest::Error> {
     Ok(())
 }
 
-fn main() {
+fn main() -> Result<(), reqwest::Error> {
     match Marge::from_args() {
         Marge::Merge{} => {
-            create_merge_request();
+            create_merge_request()?;
         },
         _ => {
             println!("something else");
         }
     }
 
+    Ok(())
 }
 
 fn chose_assignee() -> i32 {
@@ -148,15 +121,5 @@ fn chose_assignee() -> i32 {
 }
 
 fn active_branch() -> String {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg("git symbolic-ref --short HEAD")
-        .output()
-        .expect("failed to execute process");
-
-    let hello = output.stdout;
-    std::str::from_utf8(&hello).unwrap().trim().to_string()
+    git2::Repository::discover(std::env::current_dir().unwrap()).unwrap().head().unwrap().shorthand().unwrap().to_owned()
 }
-
-// how to find out which branch we are in:
-// git symbolic-ref --short HEAD
