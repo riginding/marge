@@ -1,5 +1,6 @@
 use reqwest::header::{HeaderMap, HeaderValue};
 use rand::seq::SliceRandom;
+use std::path::{Path, PathBuf};
 
 pub fn create_merge_request() -> Result<(), reqwest::Error> {
     let params = json!({
@@ -40,4 +41,8 @@ fn chose_assignee() -> i32 {
 
 fn active_branch() -> String {
     git2::Repository::discover(std::env::current_dir().unwrap()).unwrap().head().unwrap().shorthand().unwrap().to_owned()
+}
+
+pub fn git_path() -> PathBuf {
+    git2::Repository::discover((std::env::current_dir()).unwrap()).unwrap().path().to_owned()
 }

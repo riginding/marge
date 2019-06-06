@@ -14,14 +14,16 @@ use structopt::StructOpt;
 
 
 fn main() -> Result<(), Box<dyn Error>> {
-    match Marge::from_args() {
-        Marge::Merge{} => {
-            gitlab::create_merge_request()?;
-        },
-        _ => {
-            println!("something else");
-        }
-    }
+//    match Marge::from_args() {
+//        Marge::Merge{} => {
+//            gitlab::create_merge_request()?;
+//        },
+//        _ => {
+//            println!("something else");
+//        }
+//    }
+
+    println!("{:?}",gitlab::git_path());
 
     Ok(())
 }
