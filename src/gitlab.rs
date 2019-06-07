@@ -1,5 +1,5 @@
-use reqwest::header::{HeaderMap, HeaderValue};
 use rand::seq::SliceRandom;
+use reqwest::header::{HeaderMap, HeaderValue};
 use std::path::{Path, PathBuf};
 
 pub fn create_merge_request() -> Result<(), reqwest::Error> {
@@ -14,9 +14,9 @@ pub fn create_merge_request() -> Result<(), reqwest::Error> {
         "squash": true,
     });
 
-
     let client = reqwest::Client::new();
-    client.post("https://git.sclable.com/api/v4/projects/506/merge_requests")
+    client
+        .post("https://git.sclable.com/api/v4/projects/506/merge_requests")
         .headers(construct_headers())
         .json(&params)
         .send()?;
@@ -28,7 +28,10 @@ pub fn create_merge_request() -> Result<(), reqwest::Error> {
 
 fn construct_headers() -> HeaderMap {
     let mut headers = HeaderMap::new();
-    headers.insert("Private-Token", HeaderValue::from_static("wJ7Xg4gWAB4zenVMvysc"));
+    headers.insert(
+        "Private-Token",
+        HeaderValue::from_static("wJ7Xg4gWAB4zenVMvysc"),
+    );
 
     headers
 }
@@ -40,9 +43,18 @@ fn chose_assignee() -> i32 {
 }
 
 fn active_branch() -> String {
-    git2::Repository::discover(std::env::current_dir().unwrap()).unwrap().head().unwrap().shorthand().unwrap().to_owned()
+    git2::Repository::discover(std::env::current_dir().unwrap())
+        .unwrap()
+        .head()
+        .unwrap()
+        .shorthand()
+        .unwrap()
+        .to_owned()
 }
 
 pub fn git_path() -> PathBuf {
-    git2::Repository::discover((std::env::current_dir()).unwrap()).unwrap().path().to_owned()
+    git2::Repository::discover((std::env::current_dir()).unwrap())
+        .unwrap()
+        .path()
+        .to_owned()
 }

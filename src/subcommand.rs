@@ -30,19 +30,20 @@ USAGE:
 /// DOC COMMENT
 #[derive(StructOpt, Debug)]
 #[structopt(
-    about="marge, your friendly merge assistant",
-    raw(template="CONSOLE_TEMPLATE")
+    about = "marge, your friendly merge assistant",
+    raw(template = "CONSOLE_TEMPLATE")
 )]
 pub enum Marge {
     #[structopt(
-        name="setup",
-        about="Initialize your configuration",
-        raw(template="CONSOLE_TEMPLATE")
+        name = "setup",
+        about = "Initialize your configuration",
+        raw(template = "CONSOLE_TEMPLATE")
     )]
-    Setup { },
-    #[structopt(name = "buddy",
-                about="Configure your merge buddies",
-                raw(template="CONSOLE_TEMPLATE")
+    Setup {},
+    #[structopt(
+        name = "buddy",
+        about = "Configure your merge buddies",
+        raw(template = "CONSOLE_TEMPLATE")
     )]
     Buddy {
         /// add a merge buddy
@@ -52,10 +53,10 @@ pub enum Marge {
         #[structopt(short = "l")]
         list: bool,
     },
-    #[structopt(name = "merge",
-                about="Creates a merge request",
-                raw(template="CONSOLE_TEMPLATE")
+    #[structopt(
+        name = "merge",
+        about = "Creates a merge request",
+        raw(template = "CONSOLE_TEMPLATE")
     )]
-
-    Merge { }
+    Merge {},
 }
