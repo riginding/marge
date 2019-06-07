@@ -7,6 +7,7 @@ extern crate reqwest;
 
 mod gitlab;
 mod subcommand;
+mod error;
 
 use std::error::Error;
 use structopt::StructOpt;
