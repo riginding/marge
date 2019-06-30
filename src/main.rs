@@ -12,19 +12,32 @@ mod error;
 use std::error::Error;
 use structopt::StructOpt;
 use subcomand::Marge;
+use crate::error::MargeError;
+use std::process;
 
-fn main() -> Result<(), Box<dyn Error>> {
-       match Marge::from_args() {
-           Marge::Merge{} => {
-               gitlab::create_merge_request()?;
-           },
-           _ => {
-               println!("something else");
-           }
-       }
+fn main() {
+    let result = run();
 
-    println!("{:?}", git::git_path());
-    println!("TEST");
+    match result {
+        Ok(_) => {},
+        Err(e) => {
+            eprintln!("{}", e);
+            process::exit(1);
+        }
+
+    }
+
+}
+
+fn run() -> Result<(), MargeError> {
+    match Marge::from_args() {
+        Marge::Merge{} => {
+            gitlab::create_merge_request()?;
+        },
+        _ => {
+            println!("something else");
+        }
+    }
 
     Ok(())
 }
