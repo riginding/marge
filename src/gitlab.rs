@@ -1,13 +1,12 @@
 use rand::seq::SliceRandom;
 use reqwest::header::{HeaderMap, HeaderValue};
-use std::path::{Path, PathBuf};
 use crate::error::MargeError;
-use git2::Repository;
+use crate::git;
 
 pub fn create_merge_request() -> Result<(), MargeError> {
     let params = json!({
         "id": "506", // dreamfactory hardcoded
-        "source_branch": active_branch(),
+        "source_branch": git::active_branch(),
         "target_branch": "sandbox",
         "assignee_id": chose_assignee(),
         "title": "This is a test",
@@ -44,25 +43,3 @@ fn chose_assignee() -> i32 {
     *commitor_ids.choose(&mut rand::thread_rng()).unwrap()
 }
 
-fn current_repo() -> Result<Repository, MargeError> {
-    let path = std::env::current_dir()?;
-    let repository = git2::Repository::discover(path)?;
-
-    Ok(repository)
-}
-
-fn active_branch() -> Result<String, MargeError> {
-    let name =current_repo()?
-        .head()
-        .unwrap()
-        .shorthand()
-        .unwrap()
-        .to_owned();
-
-    Ok(name)
-}
-
-pub fn git_path() -> Result<PathBuf, MargeError> {
-    let path = current_repo()?.path().to_owned();
-    Ok(path)
-}
