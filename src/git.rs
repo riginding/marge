@@ -1,5 +1,5 @@
-use git2::Repository;
 use crate::error::MargeError;
+use git2::Repository;
 use std::path::PathBuf;
 
 fn current_repo() -> Result<Repository, MargeError> {
@@ -9,8 +9,9 @@ fn current_repo() -> Result<Repository, MargeError> {
     Ok(repository)
 }
 
+#[allow(dead_code)]
 pub fn active_branch() -> Result<String, MargeError> {
-    let name =current_repo()?
+    let name = current_repo()?
         .head()
         .unwrap()
         .shorthand()
@@ -22,5 +23,6 @@ pub fn active_branch() -> Result<String, MargeError> {
 
 pub fn git_path() -> Result<PathBuf, MargeError> {
     let path = current_repo()?.path().to_owned();
+
     Ok(path)
 }

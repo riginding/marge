@@ -1,11 +1,11 @@
-use serde::Serialize;
 use std::fmt;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub enum MargeError {
-  Git2Error,
-  IOError,
-  ReqwestError,
+    Git2Error,
+    IOError,
+    ReqwestError(::reqwest::Error),
+    PathNoParentError,
 }
 
 impl fmt::Display for MargeError {
@@ -13,12 +13,12 @@ impl fmt::Display for MargeError {
         use MargeError::*;
 
         match self {
-            Git2Error => write!(f, "Error in git"),
-            IOError => write!(f, "Error in io"),
-            ReqwestError => write!(f, "Error in reqwest"),
+            Git2Error => write!(f, "marge: It seems like you are not inside a git project."),
+            IOError => write!(f, "marge: I've experienced some errors with IO."),
+            ReqwestError(e) => write!(f, "marge: I have noticed a network error. {:?}", e),
+            PathNoParentError => write!(f, "marge: A supplied path did not exist."),
         }
     }
-
 }
 
 impl std::error::Error for MargeError {
@@ -28,7 +28,8 @@ impl std::error::Error for MargeError {
         match self {
             Git2Error => None,
             IOError => None,
-            ReqwestError => None,
+            ReqwestError(_) => None,
+            PathNoParentError => None,
         }
     }
 }
@@ -46,7 +47,7 @@ impl From<::std::io::Error> for MargeError {
 }
 
 impl From<::reqwest::Error> for MargeError {
-    fn from(_: ::reqwest::Error) -> MargeError {
-        MargeError::ReqwestError
+    fn from(e: ::reqwest::Error) -> MargeError {
+        MargeError::ReqwestError(e)
     }
 }

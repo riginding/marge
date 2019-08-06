@@ -207,3 +207,5 @@ tags
 [._]*.un~
 
 # End of https://www.gitignore.io/api/vim,rust,emacs,linux,macos,intellij
+#
+.marge
