@@ -9,7 +9,6 @@ mod gitlab;
 mod subcomand;
 mod error;
 
-use std::error::Error;
 use structopt::StructOpt;
 use subcomand::Marge;
 use crate::error::MargeError;
