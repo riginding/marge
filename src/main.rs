@@ -5,15 +5,18 @@ extern crate git2;
 extern crate rand;
 extern crate reqwest;
 
+mod config;
 mod error;
 mod git;
 mod gitlab;
-mod init;
 mod subcommand;
 
+use crate::config::Config;
 use crate::error::MargeError;
 use std::process;
 use subcommand::parse_matches;
+
+pub type Result<T> = std::result::Result<T, MargeError>;
 
 fn main() {
     let result = run();
@@ -27,7 +30,7 @@ fn main() {
     }
 }
 
-fn run() -> Result<(), MargeError> {
+fn run() -> Result<()> {
     let matches = parse_matches();
 
     if let Some(matches) = matches.subcommand_matches("merge") {
@@ -39,7 +42,7 @@ fn run() -> Result<(), MargeError> {
     }
 
     if matches.subcommand_matches("init").is_some() {
-        init::find_or_create()?
+        Config::init()?
     }
 
     Ok(())
