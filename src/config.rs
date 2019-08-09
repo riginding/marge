@@ -7,6 +7,7 @@ use dialoguer::Input;
 use dialoguer::{theme::ColorfulTheme, Confirmation, Select};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
+use std::io::Read;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -37,8 +38,8 @@ impl Config {
         let server_uri = query_server()?;
         let api_key = query_api_key()?;
         let project_name = query_project_name()?;
-        let pj = search_for_project(&server_uri, &api_key, &project_name)?;
-        let project_id = pick_a_project(&pj)?;
+        let projects = search_for_project(&server_uri, &api_key, &project_name)?;
+        let project_id = pick_a_project(&projects)?;
         let default_branch = query_default_branch()?;
 
         Ok(Config {
@@ -48,6 +49,16 @@ impl Config {
             project_id,
             default_branch,
         })
+    }
+
+    #[allow(dead_code)]
+    pub fn read() -> Result<Config> {
+        let path = get_config_path()?;
+        let mut file = File::open(&path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let config: Config = serde_yaml::from_str(&contents).map_err(|_| MargeError::ParseError)?;
+        Ok(config)
     }
 }
 

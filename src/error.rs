@@ -6,6 +6,7 @@ pub enum MargeError {
     IOError,
     ReqwestError(::reqwest::Error),
     PathNoParentError,
+    ParseError,
 }
 
 impl fmt::Display for MargeError {
@@ -17,6 +18,7 @@ impl fmt::Display for MargeError {
             IOError => write!(f, "marge: I've experienced some errors with IO."),
             ReqwestError(e) => write!(f, "marge: I have noticed a network error. {:?}", e),
             PathNoParentError => write!(f, "marge: A supplied path did not exist."),
+            ParseError => write!(f, "marge: Error while parsing config"),
         }
     }
 }
@@ -30,6 +32,7 @@ impl std::error::Error for MargeError {
             IOError => None,
             ReqwestError(_) => None,
             PathNoParentError => None,
+            ParseError => None,
         }
     }
 }
