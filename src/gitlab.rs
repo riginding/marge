@@ -5,6 +5,7 @@ use rand::seq::SliceRandom;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use url::Url;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Project {
@@ -35,7 +36,6 @@ pub fn search_for_project(
     Ok(res)
 }
 
-#[allow(dead_code)]
 pub fn create_merge_request(config: Config) -> Result<(), MargeError> {
     let params = json!({
         "id": config.project_id,
@@ -48,8 +48,14 @@ pub fn create_merge_request(config: Config) -> Result<(), MargeError> {
         "squash": true,
     });
 
+    let url = Url::parse(&config.server_uri).unwrap();
+    let mr_path = String::from("/api/v4/projects/") + &config.project_id.to_string() + "/merge_requests";
+    url.join(&mr_path).unwrap();
+
+    dbg!(&mr_path);
+
     reqwest::Client::new()
-        .post("https://git.sclable.com/api/v4/projects/506/merge_requests")
+        .post(url.as_str())
         .headers(construct_headers(&config.api_key))
         .json(&params)
         .send()?;

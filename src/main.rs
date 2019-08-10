@@ -44,7 +44,7 @@ fn run() -> Result<()> {
         if matches.is_present("suggest") {
             println!("suggest reviewer");
         } else {
-            create_merge_request(config);
+            create_merge_request(config)?;
             println!("assign a random reviewer");
         }
     }
