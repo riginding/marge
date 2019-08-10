@@ -1,10 +1,10 @@
+use crate::config::Config;
 use crate::error::MargeError;
 use crate::git;
 use rand::seq::SliceRandom;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::config::Config;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Project {
@@ -60,10 +60,7 @@ pub fn create_merge_request(config: Config) -> Result<(), MargeError> {
 fn construct_headers(auth_key: &str) -> HeaderMap {
     let mut headers = HeaderMap::new();
     let value = HeaderValue::from_str(&auth_key).expect("wrong auth key");
-    headers.insert(
-        "Private-Token",
-        value
-    );
+    headers.insert("Private-Token", value);
 
     headers
 }

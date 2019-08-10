@@ -71,7 +71,7 @@ impl Config {
     pub fn read() -> Result<Config> {
         let path = get_config_path()?;
         let mut file = File::open(&path)?;
-        let mut contents= String::new();
+        let mut contents = String::new();
         file.read_to_string(&mut contents)?;
         let config: Config = serde_yaml::from_str(&contents).map_err(|_| MargeError::ParseError)?;
         Ok(config)

@@ -13,9 +13,9 @@ mod subcommand;
 
 use crate::config::Config;
 use crate::error::MargeError;
+use crate::gitlab::create_merge_request;
 use std::process;
 use subcommand::parse_matches;
-use crate::gitlab::create_merge_request;
 
 pub type Result<T> = std::result::Result<T, MargeError>;
 
@@ -37,7 +37,7 @@ fn run() -> Result<()> {
     if let Some(matches) = matches.subcommand_matches("merge") {
         if !Config::exists() {
             println!("no config file found please run init subcommand.");
-            return Ok(())
+            return Ok(());
         }
 
         let config = Config::read()?;
