@@ -4,6 +4,7 @@ use rand::seq::SliceRandom;
 use reqwest::header::{HeaderMap, HeaderValue};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use crate::config::Config;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Project {
@@ -19,14 +20,14 @@ impl fmt::Display for Project {
 
 pub fn search_for_project(
     server_url: &str,
-    _api_key: &str,
+    api_key: &str,
     project_name: &str,
 ) -> Result<Vec<Project>, MargeError> {
     let request = server_url.to_owned() + "api/v4/projects";
 
     let res = reqwest::Client::new()
         .get(&request)
-        .headers(construct_headers())
+        .headers(construct_headers(api_key))
         .query(&[("search", project_name)])
         .send()?
         .json::<Vec<Project>>()?;
@@ -35,11 +36,11 @@ pub fn search_for_project(
 }
 
 #[allow(dead_code)]
-pub fn create_merge_request() -> Result<(), MargeError> {
+pub fn create_merge_request(config: Config) -> Result<(), MargeError> {
     let params = json!({
-        "id": "506", // dreamfactory hardcoded
+        "id": config.project_id,
         "source_branch": git::active_branch()?,
-        "target_branch": "sandbox",
+        "target_branch": config.default_branch,
         "assignee_id": chose_assignee(),
         "title": "This is a test",
         "description": "a description for this very useful mr",
@@ -49,18 +50,19 @@ pub fn create_merge_request() -> Result<(), MargeError> {
 
     reqwest::Client::new()
         .post("https://git.sclable.com/api/v4/projects/506/merge_requests")
-        .headers(construct_headers())
+        .headers(construct_headers(&config.api_key))
         .json(&params)
         .send()?;
 
     Ok(())
 }
 
-fn construct_headers() -> HeaderMap {
+fn construct_headers(auth_key: &str) -> HeaderMap {
     let mut headers = HeaderMap::new();
+    let value = HeaderValue::from_str(&auth_key).expect("wrong auth key");
     headers.insert(
         "Private-Token",
-        HeaderValue::from_static("DuBDeordPxNvJFEruwdT"),
+        value
     );
 
     headers

@@ -15,6 +15,7 @@ use crate::config::Config;
 use crate::error::MargeError;
 use std::process;
 use subcommand::parse_matches;
+use crate::gitlab::create_merge_request;
 
 pub type Result<T> = std::result::Result<T, MargeError>;
 
@@ -34,15 +35,22 @@ fn run() -> Result<()> {
     let matches = parse_matches();
 
     if let Some(matches) = matches.subcommand_matches("merge") {
+        if !Config::exists() {
+            println!("no config file found please run init subcommand.");
+            return Ok(())
+        }
+
+        let config = Config::read()?;
         if matches.is_present("suggest") {
             println!("suggest reviewer");
         } else {
+            create_merge_request(config);
             println!("assign a random reviewer");
         }
     }
 
     if matches.subcommand_matches("init").is_some() {
-        Config::init()?
+        Config::init()?;
     }
 
     Ok(())

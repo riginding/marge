@@ -21,17 +21,26 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn init() -> Result<()> {
-        let path = get_config_path()?;
-        if path.exists()
+    pub fn init() -> Result<Config> {
+        if Config::exists()
             && !Confirmation::with_theme(&ColorfulTheme::default())
                 .with_text(".marge config file found, do you want to overwrite it?")
                 .interact()?
         {
-            return Ok(());
+            return Ok(Config::read()?);
         }
 
-        Ok(write_configuration()?)
+        Ok(Config::write_configuration()?)
+    }
+
+    pub fn write_configuration() -> Result<Config> {
+        let path = get_config_path()?;
+        let mut file = File::create(&path)?;
+        let configuration = Config::new()?;
+        let config_string = serde_yaml::to_string(&configuration).unwrap();
+        file.write_all(config_string.as_bytes())?;
+
+        Ok(configuration)
     }
 
     pub fn new() -> Result<Config> {
@@ -51,11 +60,18 @@ impl Config {
         })
     }
 
-    #[allow(dead_code)]
+    pub fn exists() -> bool {
+        let path = get_config_path();
+        match path {
+            Ok(path) => path.exists(),
+            Err(_) => false,
+        }
+    }
+
     pub fn read() -> Result<Config> {
         let path = get_config_path()?;
         let mut file = File::open(&path)?;
-        let mut contents = String::new();
+        let mut contents= String::new();
         file.read_to_string(&mut contents)?;
         let config: Config = serde_yaml::from_str(&contents).map_err(|_| MargeError::ParseError)?;
         Ok(config)
@@ -69,16 +85,6 @@ fn get_config_path() -> Result<PathBuf> {
         .join(".marge");
 
     Ok(path)
-}
-
-fn write_configuration() -> Result<()> {
-    let path = get_config_path()?;
-    let mut file = File::create(&path)?;
-    let configuration = Config::new()?;
-    let config_string = serde_yaml::to_string(&configuration).unwrap();
-    file.write_all(config_string.as_bytes())?;
-
-    Ok(())
 }
 
 fn pick_a_project(projects: &[Project]) -> Result<i32> {
