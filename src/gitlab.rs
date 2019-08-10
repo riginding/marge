@@ -49,10 +49,11 @@ pub fn create_merge_request(config: Config) -> Result<(), MargeError> {
     });
 
     let server_url = Url::parse(&config.server_uri).unwrap();
-    let mr_path = String::from("/api/v4/projects/") + &config.project_id.to_string() + "/merge_requests";
+    let mr_path =
+        String::from("/api/v4/projects/") + &config.project_id.to_string() + "/merge_requests";
     let url = server_url.join(&mr_path).unwrap();
 
-    let res = reqwest::Client::new()
+    reqwest::Client::new()
         .post(url.as_str())
         .headers(construct_headers(&config.api_key))
         .json(&params)
