@@ -7,7 +7,7 @@ edition = "2018"
 repository = "https://github.com/riginding/marge"
 readme = "README.md"
 license= "MIT"
-keywords = ["command-line-application", "gitlab"]
+keywords = ["cli-tool", "gitlab"]
 
 [dependencies]
 clap = "2.33.0"
