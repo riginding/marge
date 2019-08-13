@@ -38,7 +38,21 @@ pub fn parse_matches() -> ArgMatches<'static> {
                 .arg(
                     Arg::with_name("suggest")
                         .short("s")
-                        .help("assign a random reviewer"),
+                        .help("suggest a reviewer based on changed files"),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("buddy")
+                .about("manage your merge buddies")
+                .arg(
+                    Arg::with_name("add")
+                        .short("a")
+                        .help("add a a new merge buddy"),
+                )
+                .arg(
+                    Arg::with_name("list")
+                        .short("l")
+                        .help("list all your merge buddies"),
                 ),
         )
         .subcommand(SubCommand::with_name("init").about("Initialize your configuration"))

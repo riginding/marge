@@ -9,11 +9,13 @@ mod config;
 mod error;
 mod git;
 mod gitlab;
+mod macros;
 mod subcommand;
 
 use crate::config::Config;
 use crate::error::MargeError;
 use crate::gitlab::create_merge_request;
+use console::Style;
 use std::process;
 use subcommand::parse_matches;
 
@@ -36,8 +38,9 @@ fn run() -> Result<()> {
 
     if let Some(matches) = matches.subcommand_matches("merge") {
         if !Config::exists() {
-            println!("no config file found please run init subcommand.");
-            return Ok(());
+            return Ok(marge_error!(
+                "I found no config file please try: marge init"
+            ));
         }
 
         let config = Config::read()?;
@@ -45,7 +48,6 @@ fn run() -> Result<()> {
             println!("suggest reviewer");
         } else {
             create_merge_request(config)?;
-            println!("assign a random reviewer");
         }
     }
 

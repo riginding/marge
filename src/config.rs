@@ -12,12 +12,19 @@ use std::io::Write;
 use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Buddy {
+    pub name: String,
+    pub id: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
     pub server_uri: String,
     pub api_key: String,
     pub project_name: String,
     pub project_id: i32,
     pub default_branch: String,
+    pub buddies: Vec<Buddy>,
 }
 
 impl Config {
@@ -53,6 +60,7 @@ impl Config {
             project_name,
             project_id,
             default_branch,
+            ..Default::default()
         })
     }
 

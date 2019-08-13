@@ -1,3 +1,5 @@
+use crate::marge_error;
+use console::Style;
 use std::fmt;
 
 #[derive(Debug)]
@@ -10,15 +12,17 @@ pub enum MargeError {
 }
 
 impl fmt::Display for MargeError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, _: &mut fmt::Formatter) -> fmt::Result {
         use MargeError::*;
 
         match self {
-            Git2Error => write!(f, "marge: It seems like you are not inside a git project."),
-            IOError => write!(f, "marge: I've experienced some errors with IO."),
-            ReqwestError(e) => write!(f, "marge: I have noticed a network error. {:?}", e),
-            PathNoParentError => write!(f, "marge: A supplied path did not exist."),
-            ParseError => write!(f, "marge: Error while parsing config"),
+            Git2Error => Ok(marge_error!(
+                "It seems like you are not inside a git project."
+            )),
+            IOError => Ok(marge_error!("I've experienced some errors with IO.")),
+            ReqwestError(_) => Ok(marge_error!("I have noticed a network error.")),
+            PathNoParentError => Ok(marge_error!("I could not find the supplied path")),
+            ParseError => Ok(marge_error!("I've had problem parsing the Config")),
         }
     }
 }
