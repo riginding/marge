@@ -4,6 +4,10 @@ description = "marge create MRs and automatically assigns one of your merge budd
 version = "0.1.0"
 authors = ["Ryan Riginding <ryan@riginding.com>"]
 edition = "2018"
+repository = "https://github.com/riginding/marge"
+readme = "README.md"
+license= "MIT"
+keywords = ["command-line-application", "gitlab"]
 
 [dependencies]
 clap = "2.33.0"
